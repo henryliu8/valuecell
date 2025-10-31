@@ -267,7 +267,7 @@ class AutoTradingAgent(BaseAgent):
                             )
                             trade_message = FilteredCardPushNotificationComponentData(
                                 title=f"{config.agent_model} Trade",
-                                data=f"💰 **Trade Executed:**\n{trade_message_text}\n",
+                                data=f"💰 **Trade Executed**\n\n{trade_message_text}\n",
                                 filters=[config.agent_model],
                                 table_title="Trade Detail",
                                 create_time=datetime.now(timezone.utc).strftime(
@@ -548,39 +548,33 @@ class AutoTradingAgent(BaseAgent):
         output = []
 
         # Header
-        output.append(f"📊 **Trading Portfolio Status** - {instance_id}")
-        output.append("\n**Instance Configuration**")
+        output.append("📊 **Instance Configuration**\n")
         output.append(f"- Model: `{config.agent_model}`")
         output.append(f"- Symbols: {', '.join(config.crypto_symbols)}")
         output.append(
-            f"- Status: {'🟢 Active' if instance['active'] else '🔴 Stopped'}"
+            f"- Status: {'🟢 Active' if instance['active'] else '🔴 Stopped'}\n"
         )
 
         # Portfolio Summary Section
-        output.append("\n💰 **Portfolio Summary**")
-        output.append("\n**Overall Performance**")
-        output.append(f"- Initial Capital: `${config.initial_capital:,.2f}`")
-        output.append(f"- Current Value: `${portfolio_value:,.2f}`")
+        output.append("💰 **Portfolio Summary**\n")
+        output.append("**Overall Performance**\n")
+        output.append(f"- Current Value: `${portfolio_value:,.2f}`\n")
 
         pnl_emoji = "🟢" if total_pnl >= 0 else "🔴"
         pnl_sign = "+" if total_pnl >= 0 else ""
         output.append(
-            f"- Total P&L: {pnl_emoji} **{pnl_sign}${total_pnl:,.2f}** ({pnl_sign}{pnl_pct:.2f}%)"
+            f"- Total P&L: {pnl_emoji} **{pnl_sign}${total_pnl:,.2f}** ({pnl_sign}{pnl_pct:.2f}%)\n"
         )
-
-        output.append("\n**Cash Position**")
-        output.append(f"- Available Cash: `${available_cash:,.2f}`")
+        output.append(f"- Available Cash: `${available_cash:,.2f}`\n")
 
         # Current Positions Section
-        output.append(f"\n📈 **Current Positions ({len(executor.positions)})**")
+        output.append(f"📈 **Current Positions ({len(executor.positions)})**")
 
         if executor.positions:
             output.append(
-                "\n| Symbol | Type | Quantity | Avg Price | Current Price | Position Value | Unrealized P&L |"
+                "\n| Symbol | Type | **Position**/Quantity | **Current**/Avg | **P&L** |"
             )
-            output.append(
-                "|--------|------|----------|-----------|---------------|----------------|----------------|"
-            )
+            output.append("|--------|------|---------|--------|--------|")
 
             for symbol, pos in executor.positions.items():
                 try:
@@ -603,15 +597,14 @@ class AutoTradingAgent(BaseAgent):
                         )
                         position_value = pos.notional + unrealized_pnl
 
-                    # Format row
-                    pnl_emoji = "🟢" if unrealized_pnl >= 0 else "🔴"
+                    # Format row with merged columns
                     pnl_sign = "+" if unrealized_pnl >= 0 else ""
 
                     output.append(
                         f"| **{symbol}** | {pos.trade_type.value.upper()} | "
-                        f"{abs(pos.quantity):.4f} | ${pos.entry_price:,.2f} | "
-                        f"${current_price:,.2f} | ${position_value:,.2f} | "
-                        f"{pnl_emoji} {pnl_sign}${unrealized_pnl:,.2f} |"
+                        f"**${position_value:,.2f}** <br> {abs(pos.quantity):.4f} | "
+                        f"**${current_price:,.2f}** <br> ${pos.entry_price:,.2f} | "
+                        f"**{pnl_sign}${unrealized_pnl:,.2f}** |"
                     )
 
                 except Exception as e:
@@ -619,8 +612,9 @@ class AutoTradingAgent(BaseAgent):
                     # Fallback display with entry price only
                     output.append(
                         f"| **{symbol}** | {pos.trade_type.value.upper()} | "
-                        f"{abs(pos.quantity):.4f} | ${pos.entry_price:,.2f} | "
-                        f"N/A | ${pos.notional:,.2f} | N/A |"
+                        f"**${pos.notional:,.2f}** <br> {abs(pos.quantity):.4f} | "
+                        f"**${pos.entry_price:,.2f}** <br> ${pos.entry_price:,.2f} | "
+                        f"**N/A** |"
                     )
         else:
             output.append("\n*No open positions*")
