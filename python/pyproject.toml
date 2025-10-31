@@ -9,6 +9,7 @@ description = "ValueCell is a community-driven, multi-agent platform for financi
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    'pyright>=1.1.380; sys_platform == "darwin" and platform_machine == "x86_64"',
     "pytz>=2023.3",
     "python-dateutil>=2.8.2",
     "fastapi>=0.104.0",
@@ -37,7 +38,9 @@ dev = [
     "pytest-asyncio>=1.0.0",
     "diff-cover>=9.0.0",
 ]
-
+ide = [
+  'pyright>=1.1.380; sys_platform == "darwin" and platform_machine == "x86_64"',
+]
 [dependency-groups]
 dev = [
     {include-group = "lint"},
@@ -114,4 +117,12 @@ skip_glob = [
     "**/tests/**",
     "docs/**",
     "**/docs/**",
+]
+[tool.uv]
+required-environments = [
+  'platform_system == "Linux" and platform_machine == "x86_64"',
+  'platform_system == "Linux" and platform_machine == "aarch64"',
+  'platform_system == "Windows" and platform_machine == "AMD64"',
+  'sys_platform == "darwin" and platform_machine == "arm64"',   # Apple Silicon
+  'sys_platform == "darwin" and platform_machine == "x86_64"',  # Intel Mac
 ]
